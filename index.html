@@ -51,25 +51,28 @@
        (Inputs + selects + boutons secondaires)
        ========================= */
     input, select{
-      background: rgba(14,14,20,0.65); /* un peu plus clair */
-      border:1px solid rgba(225,29,72,0.22); /* mini contour rouge léger */
+      background: rgba(14,14,20,0.70);
+      border:1px solid rgba(225,29,72,0.35); /* + visible */
       color:var(--text);
       border-radius:12px;
       padding:10px 12px;
       outline:none;
       width: 280px;
       font-size:14px;
-      transition: border-color .12s ease, box-shadow .12s ease, background .12s ease, transform .05s ease;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
+
     input:hover, select:hover{
-      border-color: rgba(225,29,72,0.38);
-      background: rgba(14,14,20,0.78);
+      border-color: rgba(225,29,72,0.60); /* plus fort au survol */
+      background: rgba(14,14,20,0.85);
     }
+
     input:focus, select:focus{
-      border-color: rgba(225,29,72,0.70);
-      box-shadow: 0 0 0 4px rgba(225,29,72,0.18);
-      background: rgba(14,14,20,0.90);
+      border-color: rgba(225,29,72,0.85);
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.25); /* glow plus visible */
+      background: rgba(14,14,20,0.95);
     }
+
 
     .btn{
       background: linear-gradient(180deg, rgba(225,29,72,0.95), rgba(225,29,72,0.75));
@@ -86,18 +89,19 @@
     .btn:active{ transform: translateY(1px); }
 
     /* Boutons secondaires : on les rend + “cliquables” visuellement */
-    .btn.secondary{
-      background: rgba(14,14,20,0.55);
-      border:1px solid rgba(225,29,72,0.22);
+   .btn.secondary{
+      background: rgba(14,14,20,0.65);
+      border:1px solid rgba(225,29,72,0.35);
       color: var(--text);
-      box-shadow: 0 0 0 0 rgba(225,29,72,0);
-      transition: border-color .12s ease, box-shadow .12s ease, background .12s ease, transform .05s ease;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
+    
     .btn.secondary:hover{
-      border-color: rgba(225,29,72,0.42);
-      background: rgba(14,14,20,0.75);
-      box-shadow: 0 0 0 4px rgba(225,29,72,0.10);
+      border-color: rgba(225,29,72,0.70);
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.20);
+      background: rgba(14,14,20,0.85);
     }
+
 
     .btn.small{
       padding:10px 12px;
@@ -419,3 +423,4 @@
 </script>
 </body>
 </html>
+
