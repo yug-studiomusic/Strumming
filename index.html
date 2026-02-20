@@ -49,31 +49,26 @@
       align-items:center;
       justify-content:center;
       margin: 0 0 18px 0;
-
+    
       background:
-        radial-gradient(800px 260px at center, rgba(225,29,72,0.22), transparent 70%),
+        radial-gradient(800px 260px at center, rgba(225,29,72,0.18), transparent 70%),
         linear-gradient(180deg, #0b0b0e 0%, #07070b 100%);
-
-      border:1px solid rgba(225,29,72,0.18);
+    
+      /* ✅ plus de contour rouge */
+      border:1px solid rgba(255,255,255,0.08);
       border-radius:16px;
       overflow:hidden;
       position:relative;
     }
 
-    .yug-banner::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:0;
-      height:2px;
-      background: rgba(225,29,72,0.35);
-    }
-
     .yug-logo{
-      height:105px;
+      height:130px; /* ✅ plus gros (avant 105) */
       object-fit:contain;
+    
       filter:
         drop-shadow(0 0 12px rgba(225,29,72,0.70))
         drop-shadow(0 0 34px rgba(225,29,72,0.45));
+    
       transition: transform 0.25s ease;
     }
 
@@ -509,3 +504,4 @@
 </script>
 </body>
 </html>
+
