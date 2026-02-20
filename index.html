@@ -44,34 +44,38 @@
        ========================= */
     .yug-banner{
       width:100%;
-      height:170px;
+      height:180px;
       display:flex;
       align-items:center;
       justify-content:center;
       margin: 0 0 18px 0;
     
+      /* Noir dominant */
       background:
-        radial-gradient(800px 260px at center, rgba(225,29,72,0.18), transparent 70%),
-        linear-gradient(180deg, #0b0b0e 0%, #07070b 100%);
+        linear-gradient(90deg,
+          rgba(225,29,72,0.25) 0%,
+          #000 20%,
+          #000 80%,
+          rgba(225,29,72,0.25) 100%
+        );
     
-      /* ✅ plus de contour rouge */
-      border:1px solid rgba(255,255,255,0.08);
       border-radius:16px;
       overflow:hidden;
       position:relative;
     }
 
     .yug-logo{
-      height:130px; /* ✅ plus gros (avant 105) */
+      height:130px;
       object-fit:contain;
     
+      /* Glow léger uniquement autour du texte */
       filter:
-        drop-shadow(0 0 12px rgba(225,29,72,0.70))
-        drop-shadow(0 0 34px rgba(225,29,72,0.45));
+        drop-shadow(0 0 8px rgba(225,29,72,0.6))
+        drop-shadow(0 0 18px rgba(225,29,72,0.35));
     
       transition: transform 0.25s ease;
     }
-
+    
     .yug-logo:hover{
       transform: scale(1.05);
     }
@@ -504,4 +508,5 @@
 </script>
 </body>
 </html>
+
 
