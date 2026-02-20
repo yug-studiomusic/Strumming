@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>YUG Strumming Generator</title>
+
   <style>
     :root{
       --bg:#0b0b0e;
@@ -12,6 +13,7 @@
       --muted:#b7b7c2;
       --accent:#e11d48; /* rouge "GOT vibe" */
     }
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -23,6 +25,7 @@
       justify-content:center;
       padding:24px;
     }
+
     .wrap{
       width:min(980px, 100%);
       background: rgba(19,19,26,0.85);
@@ -32,6 +35,7 @@
       padding:18px;
       backdrop-filter: blur(10px);
     }
+
     .row{
       display:flex;
       gap:12px;
@@ -39,6 +43,7 @@
       align-items:end;
       margin-bottom:14px;
     }
+
     label{
       display:block;
       font-size:12px;
@@ -48,11 +53,11 @@
 
     /* =========================
        UI VISIBILITÉ “CLICABLE”
-       (Inputs + selects + boutons secondaires)
+       (inputs/selects + boutons secondaires)
        ========================= */
     input, select{
       background: rgba(14,14,20,0.70);
-      border:1px solid rgba(225,29,72,0.35); /* + visible */
+      border:1px solid rgba(225,29,72,0.45); /* + rouge (repos) */
       color:var(--text);
       border-radius:12px;
       padding:10px 12px;
@@ -63,16 +68,15 @@
     }
 
     input:hover, select:hover{
-      border-color: rgba(225,29,72,0.60); /* plus fort au survol */
-      background: rgba(14,14,20,0.85);
+      border-color: rgba(225,29,72,0.72); /* + rouge (hover) */
+      background: rgba(14,14,20,0.86);
     }
 
     input:focus, select:focus{
-      border-color: rgba(225,29,72,0.85);
-      box-shadow: 0 0 0 3px rgba(225,29,72,0.25); /* glow plus visible */
+      border-color: rgba(225,29,72,0.92);  /* + rouge (focus) */
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.28); /* glow un peu + visible */
       background: rgba(14,14,20,0.95);
     }
-
 
     .btn{
       background: linear-gradient(180deg, rgba(225,29,72,0.95), rgba(225,29,72,0.75));
@@ -88,20 +92,17 @@
     }
     .btn:active{ transform: translateY(1px); }
 
-    /* Boutons secondaires : on les rend + “cliquables” visuellement */
-   .btn.secondary{
+    .btn.secondary{
       background: rgba(14,14,20,0.65);
-      border:1px solid rgba(225,29,72,0.35);
+      border:1px solid rgba(225,29,72,0.45); /* + rouge (repos) */
       color: var(--text);
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    
     .btn.secondary:hover{
-      border-color: rgba(225,29,72,0.70);
-      box-shadow: 0 0 0 3px rgba(225,29,72,0.20);
-      background: rgba(14,14,20,0.85);
+      border-color: rgba(225,29,72,0.78); /* + rouge (hover) */
+      box-shadow: 0 0 0 3px rgba(225,29,72,0.22);
+      background: rgba(14,14,20,0.86);
     }
-
 
     .btn.small{
       padding:10px 12px;
@@ -114,6 +115,7 @@
       margin-top:6px;
       line-height:1.35;
     }
+
     .canvasWrap{
       background: #000;
       border-radius:16px;
@@ -123,11 +125,13 @@
       justify-content:center;
       overflow:auto;
     }
+
     canvas{
       max-width:100%;
       height:auto;
       image-rendering: crisp-edges;
     }
+
     code{
       background: rgba(255,255,255,0.06);
       padding:2px 6px;
@@ -136,15 +140,19 @@
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
+
     <div class="row">
       <div>
-        <label>Pattern (ex: D---d--u | ou 2211-x--)</label>
-        <input id="pattern" value="D-d-d-du|dud-d-du" maxlength="128" />
+        <label>Pattern (ex: D  d d du | ou 2211 x  )</label>
+        <input id="pattern" value="D d d du|dud d du" maxlength="128" />
         <div class="hint">
           Mapping : <code>D</code>=↓ fort, <code>d</code>=↓ léger, <code>U</code>=↑ fort, <code>u</code>=↑ léger,
-          <code>x</code>=✕, <code>-</code>=silence • Compat : <code>1=↑</code> <code>2=↓</code> • Mesures : <code>|</code>
+          <code>x</code>=✕, <code>espace</code>=silence •
+          (compat silence : <code>-</code>) •
+          Compat : <code>1=↑</code> <code>2=↓</code> • Mesures : <code>|</code>
         </div>
       </div>
 
@@ -161,11 +169,11 @@
         <label>Preset rapide</label>
         <select id="preset">
           <option value="">— Choisir un preset —</option>
-          <option value="8|D-d-u-du">Pop (8e) — D-d-u-du</option>
+          <option value="8|D d u du">Pop (8e) — D d u du</option>
           <option value="8|Dduudddu">Creep vibe (8e) — Dduudddu</option>
-          <option value="8|D---d--u">Aéré (8e) — D---d--u</option>
-          <option value="16|D---d--u---d--u-">Aéré (16e) — D---d--u---d--u-</option>
-          <option value="16|D-d-U-d-u-d-d-u">Indie (16e) — D-d-U-d-u-d-d-u</option>
+          <option value="8|D   d  u">Aéré (8e) — D   d  u</option>
+          <option value="16|D   d  u   d  u ">Aéré (16e) — D   d  u   d  u </option>
+          <option value="16|D d U d u d d u">Indie (16e) — D d U d u d d u</option>
         </select>
         <div class="hint">Les presets changent aussi la subdivision si besoin.</div>
       </div>
@@ -187,9 +195,7 @@
       <button class="btn small secondary" id="dup12">Dupliquer 1 → 2</button>
       <button class="btn small secondary" id="dup21">Dupliquer 2 → 1</button>
 
-      <!-- Ne pas toucher : ton bouton télécharger reste pareil -->
       <button class="btn" id="download">Télécharger PNG</button>
-
       <button class="btn secondary" id="copy">Copier pattern “propre”</button>
     </div>
 
@@ -200,6 +206,9 @@
 
 <script>
 (() => {
+  // =========================================================
+  // SECTION 1 — DOM
+  // =========================================================
   const canvas    = document.getElementById('c');
   const ctx       = canvas.getContext('2d');
 
@@ -214,30 +223,42 @@
   const dup12Btn  = document.getElementById('dup12');
   const dup21Btn  = document.getElementById('dup21');
 
+  // =========================================================
+  // SECTION 2 — SYMBOLS (langage)
+  // =========================================================
+  // ✅ Silence principal = espace " "
+  // ✅ Compat silence = tiret "-"
   const SYMBOL = {
     'D': '↓', 'd': '↓',
     'U': '↑', 'u': '↑',
     '1': '↑',
     '2': '↓',
     'x': '✕', 'X': '✕',
-    '-': ' '
+    ' ': ' ',  // silence (principal)
+    '-': ' '   // silence (compat)
   };
 
+  // =========================================================
+  // SECTION 3 — PARSING (garder les espaces !)
+  // =========================================================
   function tokenize(raw) {
-    return raw
-      .replace(/[^DdUu12xX\-\|]/g, '')
-      .replace(/\s+/g, '');
+    // On garde : D d U u 1 2 x X - | et les espaces
+    // On supprime tout le reste
+    return (raw || '')
+      .replace(/[^DdUu12xX\-\| ]/g, '');  // IMPORTANT : on garde l'espace
   }
 
   function splitMeasures(tokens) {
-    if (tokens.includes('|')) return tokens.split('|').filter(Boolean);
+    // Ici on split sur | (sans supprimer les espaces autour)
+    if (tokens.includes('|')) return tokens.split('|');
     return [tokens];
   }
 
   function padToSubdiv(s, subdiv) {
+    // On pad avec des espaces (silences)
     if (s.length === subdiv) return s;
     if (s.length > subdiv) return s.slice(0, subdiv);
-    return s.padEnd(subdiv, '-');
+    return s.padEnd(subdiv, ' ');
   }
 
   function parseChords(raw) {
@@ -247,11 +268,17 @@
       .filter(x => x.length > 0);
   }
 
+  // =========================================================
+  // SECTION 4 — LABELS TEMPO
+  // =========================================================
   function buildBeatLabels(subdiv) {
     if (subdiv === 8) return ['1','&','2','&','3','&','4','&'];
     return ['1','e','&','a','2','e','&','a','3','e','&','a','4','e','&','a'];
   }
 
+  // =========================================================
+  // SECTION 5 — DUPLIQUER MESURES
+  // =========================================================
   function setMeasures(measures) {
     patternEl.value = measures.join('|');
     draw();
@@ -263,14 +290,18 @@
     let measures = splitMeasures(tokens);
 
     if (measures.length < 2) measures = [measures[0] || '', measures[0] || ''];
+
     measures = measures.map(m => padToSubdiv(m, subdiv));
     measures[toIndex] = measures[fromIndex];
     setMeasures(measures);
   }
 
+  // =========================================================
+  // SECTION 6 — RENDER
+  // =========================================================
   function getStrokeColor(ch, sym) {
     if (sym === '✕') return 'rgba(225,29,72,0.95)';
-    if (ch === 'D' || ch === 'U') return 'rgba(225,29,72,0.95)';
+    if (ch === 'D' || ch === 'U') return 'rgba(225,29,72,0.95)'; // accents
     return 'rgba(255,255,255,0.92)';
   }
 
@@ -278,6 +309,7 @@
     const subdiv = Number(subdivEl.value);
     const tokens = tokenize(patternEl.value);
     const measuresRaw = splitMeasures(tokens).map(m => padToSubdiv(m, subdiv));
+
     const chords = parseChords(chordsEl.value);
     const title = (titleEl.value || '').trim();
 
@@ -288,6 +320,7 @@
     const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
     const W = Math.max(1200, gridW + margin * 2);
     const H = 390;
+
     canvas.width = W;
     canvas.height = H;
 
@@ -322,6 +355,7 @@
 
     measuresRaw.forEach((m, mi) => {
       const measureCenterX = x + (subdiv * cellW) / 2;
+
       const chord = chords[mi] || '';
       if (chord) {
         ctx.font = chordFont;
@@ -336,10 +370,13 @@
         ctx.fillStyle = 'rgba(255,255,255,0.70)';
         ctx.fillText(labels[i] || '', cx, topY);
 
-        const ch = m[i] || '-';
-        const sym = SYMBOL[ch] ?? ' ';
+        const ch = m[i] ?? ' ';
+        // compat : si user met '-' => silence
+        const normalized = (ch === '-') ? ' ' : ch;
+
+        const sym = SYMBOL[normalized] ?? ' ';
         ctx.font = arrowFont;
-        ctx.fillStyle = getStrokeColor(ch, sym);
+        ctx.fillStyle = getStrokeColor(normalized, sym);
         ctx.fillText(sym, cx, arrowY);
 
         ctx.beginPath();
@@ -375,6 +412,9 @@
     ctx.fillText('YUG • strum', W - 18, H - 18);
   }
 
+  // =========================================================
+  // SECTION 7 — ACTIONS
+  // =========================================================
   function downloadPNG() {
     const a = document.createElement('a');
     a.download = 'yug-strum.png';
@@ -383,7 +423,8 @@
   }
 
   function copyPretty() {
-    const tokens = tokenize(patternEl.value).replaceAll('|','');
+    // On remplace les '-' par ' ' pour la lisibilité
+    const tokens = tokenize(patternEl.value).replaceAll('|','').replaceAll('-', ' ');
     const pretty = tokens
       .split('')
       .map(ch => SYMBOL[ch] ?? '')
@@ -393,6 +434,9 @@
     navigator.clipboard.writeText(pretty).catch(() => {});
   }
 
+  // =========================================================
+  // SECTION 8 — PRESETS
+  // =========================================================
   function applyPreset(value) {
     if (!value) return;
     const parts = value.split('|');
@@ -405,6 +449,9 @@
     draw();
   }
 
+  // =========================================================
+  // SECTION 9 — EVENTS
+  // =========================================================
   patternEl.addEventListener('input', draw);
   subdivEl.addEventListener('change', draw);
   titleEl.addEventListener('input', draw);
@@ -423,4 +470,3 @@
 </script>
 </body>
 </html>
-
