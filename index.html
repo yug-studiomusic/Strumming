@@ -24,7 +24,7 @@
       padding:24px;
     }
     .wrap{
-      width:min(920px, 100%);
+      width:min(980px, 100%);
       background: rgba(19,19,26,0.85);
       border:1px solid rgba(255,255,255,0.08);
       border-radius:18px;
@@ -52,7 +52,7 @@
       border-radius:12px;
       padding:10px 12px;
       outline:none;
-      width: 260px;
+      width: 280px;
       font-size:14px;
     }
     input:focus, select:focus{
@@ -69,12 +69,17 @@
       font-weight:650;
       transition: transform .05s ease;
       user-select:none;
+      white-space:nowrap;
     }
     .btn:active{ transform: translateY(1px); }
     .btn.secondary{
       background: transparent;
       border:1px solid rgba(255,255,255,0.12);
       color: var(--text);
+    }
+    .btn.small{
+      padding:10px 12px;
+      font-weight:650;
     }
     .hint{
       font-size:12px;
@@ -114,21 +119,24 @@
       border-radius:8px;
       color:#fff;
     }
+    .divider{
+      height:1px;
+      width:100%;
+      background: rgba(255,255,255,0.08);
+      margin:8px 0 14px;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- ========================= UI : Ligne 1 ========================= -->
     <div class="row">
       <div>
-        <label>Pattern (ex: D---d--u | ou 2211-x-- )</label>
-        <input id="pattern" value="D---d--u" maxlength="64" />
+        <label>Pattern (ex: D---d--u | ou 2211-x--)</label>
+        <input id="pattern" value="D-d-d-du|dud-d-du" maxlength="128" />
         <div class="hint">
-          Mapping (nouveau) :
-          <code>D</code>=↓ fort, <code>d</code>=↓ léger,
-          <code>U</code>=↑ fort, <code>u</code>=↑ léger,
-          <code>x</code>=✕, <code>-</code>=silence •
-          Compat : <code>1=↑</code> <code>2=↓</code>.
-          Sépare des mesures avec <code>|</code>.
+          Mapping : <code>D</code>=↓ fort, <code>d</code>=↓ léger, <code>U</code>=↑ fort, <code>u</code>=↑ léger,
+          <code>x</code>=✕, <code>-</code>=silence • Compat : <code>1=↑</code> <code>2=↓</code> • Mesures : <code>|</code>
         </div>
       </div>
 
@@ -142,17 +150,44 @@
       </div>
 
       <div>
+        <label>Preset rapide</label>
+        <select id="preset">
+          <option value="">— Choisir un preset —</option>
+          <option value="8|D-d-u-du">Pop (8e) — D-d-u-du</option>
+          <option value="8|Dduudddu">Creep vibe (8e) — Dduudddu</option>
+          <option value="8|D---d--u">Aéré (8e) — D---d--u</option>
+          <option value="16|D---d--u---d--u-">Aéré (16e) — D---d--u---d--u-</option>
+          <option value="16|D-d-U-d-u-d-d-u">Indie (16e) — D-d-U-d-u-d-d-u</option>
+        </select>
+        <div class="hint">Les presets changent aussi la subdivision si besoin.</div>
+      </div>
+
+      <div>
         <label>Texte</label>
-        <input id="title" value="-_YUG_- STRUM" maxlength="40" />
+        <input id="title" value="Idée strumming" maxlength="40" />
         <div class="hint">Optionnel (tu peux laisser vide).</div>
       </div>
+    </div>
+
+    <!-- ========================= UI : Ligne 2 ========================= -->
+    <div class="row">
+      <div>
+        <label>Accords (ex: G | Em | C | D)</label>
+        <input id="chords" value="G | Em" maxlength="120" />
+        <div class="hint">
+          Mets 1 accord par mesure, séparés par <code>|</code>. (Si tu en mets moins, le reste reste vide.)
+        </div>
+      </div>
+
+      <button class="btn small secondary" id="dup12">Dupliquer 1 → 2</button>
+      <button class="btn small secondary" id="dup21">Dupliquer 2 → 1</button>
 
       <button class="btn" id="download">Télécharger PNG</button>
       <button class="btn secondary" id="copy">Copier pattern “propre”</button>
     </div>
 
     <div class="canvasWrap">
-      <canvas id="c" width="1400" height="360"></canvas>
+      <canvas id="c" width="1400" height="380"></canvas>
     </div>
 
     <div class="footer">
@@ -168,16 +203,21 @@
   // =========================================================
   const canvas    = document.getElementById('c');
   const ctx       = canvas.getContext('2d');
+
   const patternEl = document.getElementById('pattern');
   const subdivEl  = document.getElementById('subdiv');
+  const presetEl  = document.getElementById('preset');
   const titleEl   = document.getElementById('title');
+  const chordsEl  = document.getElementById('chords');
+
   const dlBtn     = document.getElementById('download');
   const copyBtn   = document.getElementById('copy');
+  const dup12Btn  = document.getElementById('dup12');
+  const dup21Btn  = document.getElementById('dup21');
 
   // =========================================================
-  // SECTION 2 — RÈGLES (c’est ici que tu changes le “langage”)
+  // SECTION 2 — RÈGLES (langage + couleurs)
   // =========================================================
-  // 2.1 Symboles affichés
   const SYMBOL = {
     // Nouveau système (maj = accent fort, min = léger)
     'D': '↓', 'd': '↓',
@@ -194,21 +234,23 @@
     '-': ' '
   };
 
-  // 2.2 Couleurs
   const COLOR = {
     strong: 'rgba(225,29,72,0.95)',   // rouge accent
     normal: 'rgba(255,255,255,0.92)', // blanc
-    mute:   'rgba(225,29,72,0.95)'    // mute en rouge
+    mute:   'rgba(225,29,72,0.95)',   // mute en rouge
+    chord:  'rgba(255,255,255,0.86)', // accords
+    label:  'rgba(255,255,255,0.70)',
+    grid:   'rgba(255,255,255,0.18)'
   };
 
   // =========================================================
-  // SECTION 3 — PARSING (nettoyer le texte du pattern)
+  // SECTION 3 — PARSING (nettoyer / découper)
   // =========================================================
   function tokenize(raw) {
-    // Autorise : D d U u 1 2 x X - | (séparateur mesures)
+    // Autorise : D d U u 1 2 x X - |  (espaces ignorés)
     return raw
-      .replace(/[^DdUu12xX\-\_|]/g, '') // filtre
-      .replace(/\s+/g, '');             // supprime espaces (on gère |)
+      .replace(/[^DdUu12xX\-\|]/g, '')
+      .replace(/\s+/g, '');
   }
 
   function splitMeasures(tokens) {
@@ -217,14 +259,21 @@
   }
 
   function padToSubdiv(s, subdiv) {
-    // complète/trim pour coller à la subdivision (8 ou 16) par mesure
     if (s.length === subdiv) return s;
     if (s.length > subdiv) return s.slice(0, subdiv);
-    return s.padEnd(subdiv, '-'); // IMPORTANT : on pad avec '-' (silence)
+    return s.padEnd(subdiv, '-'); // pad avec silence
+  }
+
+  function parseChords(raw) {
+    // G | Em | C | D
+    return (raw || '')
+      .split('|')
+      .map(x => x.trim())
+      .filter(x => x.length > 0);
   }
 
   // =========================================================
-  // SECTION 4 — LABELS TEMPO (1 & 2 & / 1 e & a ...)
+  // SECTION 4 — LABELS TEMPO
   // =========================================================
   function buildBeatLabels(subdiv) {
     if (subdiv === 8) return ['1','&','2','&','3','&','4','&'];
@@ -232,116 +281,152 @@
   }
 
   // =========================================================
-  // SECTION 5 — RENDER (dessiner sur le canvas)
+  // SECTION 5 — OUTILS “2 ACCORDS” (duplication mesures)
+  // =========================================================
+  function setMeasures(measures) {
+    // Recompose le pattern en gardant |
+    patternEl.value = measures.join('|');
+    draw();
+  }
+
+  function duplicateMeasure(fromIndex, toIndex) {
+    const subdiv = Number(subdivEl.value);
+    const tokens = tokenize(patternEl.value);
+    let measures = splitMeasures(tokens);
+
+    // On force au moins 2 mesures si besoin
+    if (measures.length < 2) {
+      measures = [measures[0] || '', measures[0] || ''];
+    }
+
+    measures = measures.map(m => padToSubdiv(m, subdiv));
+    measures[toIndex] = measures[fromIndex];
+    setMeasures(measures);
+  }
+
+  // =========================================================
+  // SECTION 6 — RENDER (dessiner sur le canvas)
   // =========================================================
   function getStrokeColor(ch, sym) {
     if (sym === '✕') return COLOR.mute;
-    if (ch === 'D' || ch === 'U') return COLOR.strong; // accent fort (majuscules)
-    return COLOR.normal; // d/u + 1/2 = normal
+    if (ch === 'D' || ch === 'U') return COLOR.strong; // accents (majuscules)
+    return COLOR.normal; // d/u + 1/2
   }
 
   function draw() {
     const subdiv = Number(subdivEl.value);
-    const raw = patternEl.value;
-    const tokens = tokenize(raw);
-    const measures = splitMeasures(tokens).map(m => padToSubdiv(m, subdiv));
+    const rawPattern = patternEl.value;
 
-    // config taille dynamique selon nb mesures
+    const tokens = tokenize(rawPattern);
+    const measuresRaw = splitMeasures(tokens).map(m => padToSubdiv(m, subdiv));
+
+    // chords
+    const chords = parseChords(chordsEl.value);
+
+    // Taille dynamique
     const margin = 60;
     const cellW = 90;
     const measGap = 60;
 
-    const gridW = measures.length * (subdiv * cellW) + (measures.length - 1) * measGap;
+    const gridW = measuresRaw.length * (subdiv * cellW) + (measuresRaw.length - 1) * measGap;
     const W = Math.max(1200, gridW + margin * 2);
-    const H = 360;
+    const H = 390; // un peu plus haut pour afficher les accords
     canvas.width = W;
     canvas.height = H;
 
-    // fond
+    // Fond
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle = '#000';
     ctx.fillRect(0,0,W,H);
 
-    // titre
+    // Titre
     const title = (titleEl.value || '').trim();
     if (title) {
       ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      ctx.fillStyle = 'rgba(225,29,72,0.95)';
+      ctx.fillStyle = COLOR.strong;
       ctx.fillText(title, margin, 54);
     }
 
-    // labels
+    // Labels tempo
     const labels = buildBeatLabels(subdiv);
 
-    // style
+    // Layout
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const topY = 110;
-    const arrowY = 220;
-    const baseLineY = 270;
+    const chordY = 88;     // ligne des accords
+    const topY = 130;      // ligne des "1 & 2 &"
+    const arrowY = 240;    // flèches
+    const baseLineY = 292; // baseline
 
-    // baseline style
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    // Styles
+    ctx.strokeStyle = COLOR.grid;
     ctx.lineWidth = 2;
 
-    // fonts
+    const chordFont = '700 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     const labelFont = '600 22px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    const arrowFont  = '700 56px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const arrowFont = '700 56px system-ui, -apple-system, Segoe UI, Roboto, Arial';
 
     let x = margin;
 
-    measures.forEach((m, mi) => {
-      // beat labels + cells
+    measuresRaw.forEach((m, mi) => {
+      const measureCenterX = x + (subdiv * cellW) / 2;
+
+      // Accord au-dessus de la mesure
+      const chord = chords[mi] || '';
+      if (chord) {
+        ctx.font = chordFont;
+        ctx.fillStyle = COLOR.chord;
+        ctx.fillText(chord, measureCenterX, chordY);
+      }
+
+      // Cells
       for (let i=0; i<subdiv; i++) {
         const cx = x + (i * cellW) + cellW/2;
 
-        // label
+        // Label tempo
         ctx.font = labelFont;
-        ctx.fillStyle = 'rgba(255,255,255,0.70)';
+        ctx.fillStyle = COLOR.label;
         ctx.fillText(labels[i] || '', cx, topY);
 
-        // arrow / mute / silence
+        // Symbole (flèche / mute / silence)
         const ch = m[i] || '-';
         const sym = SYMBOL[ch] ?? ' ';
         ctx.font = arrowFont;
-
-        // Couleur (accent / normal / mute)
         ctx.fillStyle = getStrokeColor(ch, sym);
-
-        // Dessin
         ctx.fillText(sym, cx, arrowY);
 
-        // baseline tick
+        // Tick baseline
         ctx.beginPath();
         ctx.moveTo(cx, baseLineY - 18);
         ctx.lineTo(cx, baseLineY + 18);
         ctx.stroke();
       }
 
-      // baseline
+      // Baseline
       ctx.beginPath();
       ctx.moveTo(x, baseLineY);
       ctx.lineTo(x + subdiv*cellW, baseLineY);
       ctx.stroke();
 
-      // séparation de mesure
-      if (mi < measures.length - 1) {
+      // Séparation de mesure
+      if (mi < measuresRaw.length - 1) {
         const sepX = x + subdiv*cellW + measGap/2;
         ctx.strokeStyle = 'rgba(225,29,72,0.35)';
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(sepX, 90);
-        ctx.lineTo(sepX, 310);
+        ctx.moveTo(sepX, 80);
+        ctx.lineTo(sepX, 330);
         ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+
+        ctx.strokeStyle = COLOR.grid;
         ctx.lineWidth = 2;
       }
 
       x += subdiv*cellW + measGap;
     });
 
-    // petit watermark discret
+    // Watermark
     ctx.textAlign = 'right';
     ctx.font = '600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial';
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
@@ -349,7 +434,7 @@
   }
 
   // =========================================================
-  // SECTION 6 — ACTIONS (boutons : télécharger / copier)
+  // SECTION 7 — ACTIONS (PNG / copie)
   // =========================================================
   function downloadPNG() {
     const a = document.createElement('a');
@@ -359,9 +444,7 @@
   }
 
   function copyPretty() {
-    // renvoie une version lisible: "↓ ↓ ↑ ✕   ↓"
-    const raw = patternEl.value;
-    const tokens = tokenize(raw).replaceAll('|','');
+    const tokens = tokenize(patternEl.value).replaceAll('|','');
     const pretty = tokens
       .split('')
       .map(ch => SYMBOL[ch] ?? '')
@@ -372,13 +455,36 @@
   }
 
   // =========================================================
-  // SECTION 7 — EVENTS (quand tu tapes / cliques)
+  // SECTION 8 — PRESETS (menu)
+  // =========================================================
+  function applyPreset(value) {
+    // Format: "8|pattern" ou "16|pattern"
+    if (!value) return;
+    const parts = value.split('|');
+    if (parts.length < 2) return;
+
+    const subdiv = parts[0];
+    const patt = parts.slice(1).join('|'); // au cas où
+    if (subdiv === '8' || subdiv === '16') subdivEl.value = subdiv;
+    patternEl.value = patt;
+    draw();
+  }
+
+  // =========================================================
+  // SECTION 9 — EVENTS
   // =========================================================
   patternEl.addEventListener('input', draw);
   subdivEl.addEventListener('change', draw);
   titleEl.addEventListener('input', draw);
+  chordsEl.addEventListener('input', draw);
+
+  presetEl.addEventListener('change', (e) => applyPreset(e.target.value));
+
   dlBtn.addEventListener('click', downloadPNG);
   copyBtn.addEventListener('click', copyPretty);
+
+  dup12Btn.addEventListener('click', () => duplicateMeasure(0, 1));
+  dup21Btn.addEventListener('click', () => duplicateMeasure(1, 0));
 
   // Première génération
   draw();
