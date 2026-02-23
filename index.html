@@ -11,7 +11,7 @@
       --panel:#13131a;
       --text:#f4f4f7;
       --muted:#b7b7c2;
-      --accent:#e11d48; /* rouge "GOT vibe" */
+      --accent:#8B0000; /* rouge "GOT vibe" */
     }
 
     /* =========================================
@@ -53,10 +53,10 @@
       /* Noir dominant */
       background:
         linear-gradient(90deg,
-          rgba(225,29,72,0.25) 0%,
+          rgba(195,0,0,0.25) 0%,
           #000 20%,
           #000 80%,
-          rgba(225,29,72,0.25) 100%
+          rgba(195,0,0,0.25) 100%
         );
     
       border-radius:16px;
@@ -97,7 +97,7 @@
        ========================= */
     input, select{
       background: rgba(14,14,20,0.70);
-      border:1px solid rgba(225,29,72,0.45);
+      border:1px solid rgba(195,0,0,0.45);
       color:var(--text);
       border-radius:12px;
       padding:10px 12px;
@@ -108,18 +108,18 @@
     }
 
     input:hover, select:hover{
-      border-color: rgba(225,29,72,0.72);
+      border-color: rgba(195,0,0,0.72);
       background: rgba(14,14,20,0.86);
     }
 
     input:focus, select:focus{
-      border-color: rgba(225,29,72,0.92);
-      box-shadow: 0 0 0 3px rgba(225,29,72,0.28);
+      border-color: rgba(195,0,0,0.92);
+      box-shadow: 0 0 0 3px rgba(195,0,0,0.28);
       background: rgba(14,14,20,0.95);
     }
 
     .btn{
-      background: linear-gradient(180deg, rgba(225,29,72,0.95), rgba(225,29,72,0.75));
+      background: linear-gradient(180deg, rgba(195,0,0,0.95), rgba(195,0,0,0.75));
       border:1px solid rgba(255,255,255,0.12);
       color:#fff;
       border-radius:12px;
@@ -134,13 +134,13 @@
 
     .btn.secondary{
       background: rgba(14,14,20,0.65);
-      border:1px solid rgba(225,29,72,0.45);
+      border:1px solid rgba(195,0,0,0.45);
       color: var(--text);
       transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
     .btn.secondary:hover{
-      border-color: rgba(225,29,72,0.78);
-      box-shadow: 0 0 0 3px rgba(225,29,72,0.22);
+      border-color: rgba(195,0,0,0.78);
+      box-shadow: 0 0 0 3px rgba(195,0,0,0.22);
       background: rgba(14,14,20,0.86);
     }
 
@@ -337,8 +337,8 @@
   // SECTION 6 — RENDER
   // =========================================================
   function getStrokeColor(ch, sym) {
-    if (sym === '✕') return 'rgba(225,29,72,0.95)';
-    if (ch === 'D' || ch === 'U') return 'rgba(225,29,72,0.95)';
+    if (sym === '✕') return 'rgba(195,0,0,0.95)';
+    if (ch === 'D' || ch === 'U') return 'rgba(195,0,0,0.95)';
     return 'rgba(255,255,255,0.92)';
   }
 
@@ -367,7 +367,7 @@
 
     if (title) {
       ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      ctx.fillStyle = 'rgba(225,29,72,0.95)';
+      ctx.fillStyle = 'rgba(195,0,0,0.95)';
       ctx.fillText(title, margin, 54);
     }
 
@@ -428,7 +428,7 @@
 
       if (mi < measuresRaw.length - 1) {
         const sepX = x + subdiv*cellW + measGap/2;
-        ctx.strokeStyle = 'rgba(225,29,72,0.35)';
+        ctx.strokeStyle = 'rgba(195,0,0,0.35)';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(sepX, 80);
@@ -505,6 +505,7 @@
 </script>
 </body>
 </html>
+
 
 
 
