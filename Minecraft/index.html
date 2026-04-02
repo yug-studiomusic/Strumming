@@ -376,17 +376,22 @@
         streak += 1;
         feedback.textContent = `✅ Bien joué : ${e.key} en ${(time / 1000).toFixed(2)}s`;
         feedback.className = 'feedback good';
-      } else {
-        streak = 0;
-        feedback.textContent = `❌ Mauvaise touche : ${e.key || 'inconnue'} | il fallait ${currentItem.key}`;
-        feedback.className = 'feedback bad';
-      }
 
-      pressedKeyHint.innerHTML = `Touche attendue : <kbd>${escapeHtml(currentItem.key)}</kbd>`;
-      updateStats();
-      setTimeout(() => {
-        if (started) pickNextItem();
-      }, 450);
+        pressedKeyHint.innerHTML = `Touche attendue : <kbd>${escapeHtml(currentItem.key)}</kbd>`;
+        updateStats();
+
+        setTimeout(() => {
+          if (started) pickNextItem();
+        }, 450);
+
+      } else {
+        // Mauvaise touche → on ne passe PAS à la suivante
+        streak = 0;
+        feedback.textContent = `❌ Mauvaise touche : ${e.key || 'inconnue'} | réessaie`;
+        feedback.className = 'feedback bad';
+
+        updateStats();
+      }
     });
 
     startBtn.addEventListener('click', () => {
