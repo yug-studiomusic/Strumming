@@ -367,6 +367,10 @@
       if (!started || !currentItem) return;
 
       const pressed = normalizeKey(e.key);
+
+      // touches à ignorer (ZQSD déplacements)
+      const ignoredKeys = ['z','q','s','d'];
+      if (ignoredKeys.includes(pressed)) return;
       const expected = normalizeKey(currentItem.key);
 
       if (pressed === expected) {
