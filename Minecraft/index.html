@@ -259,6 +259,11 @@
       <div class="card side">
         <h2>Ton mapping</h2>
         <div class="mapping" id="mappingList"></div>
+        <div class="controls" style="justify-content:flex-start; margin-top:14px;">
+          <button class="secondary" id="editMappingBtn">Modifier le mapping</button>
+          <button class="secondary" id="saveMappingBtn" style="display:none;">Enregistrer</button>
+          <button class="secondary" id="cancelMappingBtn" style="display:none;">Annuler</button>
+        </div>
       </div>
     </div>
 
@@ -268,7 +273,7 @@
   </div>
 
   <script>
-    const items = [
+    const defaultItems = [
       { name: 'Épée', key: '&' },
       { name: 'Blocs', key: 'é' },
       { name: 'Pioche', key: '"' },
@@ -280,6 +285,8 @@
       { name: 'Arc', key: 'x' }
     ];
 
+    let items = JSON.parse(JSON.stringify(defaultItems));
+
     const itemName = document.getElementById('itemName');
     const feedback = document.getElementById('feedback');
     const scoreEl = document.getElementById('score');
@@ -290,6 +297,9 @@
     const startBtn = document.getElementById('startBtn');
     const skipBtn = document.getElementById('skipBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const editMappingBtn = document.getElementById('editMappingBtn');
+    const saveMappingBtn = document.getElementById('saveMappingBtn');
+    const cancelMappingBtn = document.getElementById('cancelMappingBtn');
 
     let currentItem = null;
     let started = false;
@@ -297,13 +307,32 @@
     let streak = 0;
     let reactionTimes = [];
     let startTime = 0;
+    let editingMapping = false;
 
     function renderMapping() {
       mappingList.innerHTML = '';
-      items.forEach(item => {
+      items.forEach((item, index) => {
         const row = document.createElement('div');
         row.className = 'row';
-        row.innerHTML = `<span>${item.name}</span><span><kbd>${escapeHtml(item.key)}</kbd></span>`;
+
+        if (editingMapping) {
+          row.innerHTML = `
+            <span>${item.name}</span>
+            <span>
+              <input
+                data-index="${index}"
+                class="mapping-input"
+                type="text"
+                maxlength="2"
+                value="${escapeHtml(item.key)}"
+                style="width:52px; text-align:center; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background:#10152a; color:white; padding:8px 6px; font-weight:800;"
+              />
+            </span>
+          `;
+        } else {
+          row.innerHTML = `<span>${item.name}</span><span><kbd>${escapeHtml(item.key)}</kbd></span>`;
+        }
+
         mappingList.appendChild(row);
       });
     }
@@ -356,6 +385,37 @@
       pressedKeyHint.textContent = 'La touche attendue apparaîtra après ta réponse.';
       startBtn.textContent = 'Démarrer';
       updateStats();
+    }
+
+    function startEditMapping() {
+      editingMapping = true;
+      editMappingBtn.style.display = 'none';
+      saveMappingBtn.style.display = 'inline-flex';
+      cancelMappingBtn.style.display = 'inline-flex';
+      renderMapping();
+    }
+
+    function saveMapping() {
+      const inputs = [...document.querySelectorAll('.mapping-input')];
+      const newItems = items.map((item, index) => ({
+        ...item,
+        key: (inputs[index]?.value || item.key).trim() || item.key
+      }));
+
+      items = newItems;
+      editingMapping = false;
+      editMappingBtn.style.display = 'inline-flex';
+      saveMappingBtn.style.display = 'none';
+      cancelMappingBtn.style.display = 'none';
+      renderMapping();
+    }
+
+    function cancelEditMapping() {
+      editingMapping = false;
+      editMappingBtn.style.display = 'inline-flex';
+      saveMappingBtn.style.display = 'none';
+      cancelMappingBtn.style.display = 'none';
+      renderMapping();
     }
 
     function normalizeKey(key) {
@@ -415,6 +475,9 @@
     });
 
     resetBtn.addEventListener('click', resetGame);
+    editMappingBtn.addEventListener('click', startEditMapping);
+    saveMappingBtn.addEventListener('click', saveMapping);
+    cancelMappingBtn.addEventListener('click', cancelEditMapping);
 
     renderMapping();
     updateStats();
